@@ -3,6 +3,7 @@ import requests
 
 import config
 import signer
+import extra
 
 session = requests.session()
 tasks = {}
@@ -49,7 +50,7 @@ def music163_fetch_tasks():
     logger.info(f"任务获取成功，总量：{tasks_total}，已完成：{tasks_done}")
 
 
-def music163_complete_tasks():
+def music163_complete_main_tasks():
     sig = signer.Signer(session, tasks["id"], logger)
 
     for work in tasks["works"]:
@@ -58,13 +59,19 @@ def music163_complete_tasks():
         sig.sign(work["work"])
 
 
+def music163_complete_ext_tasks():
+    ext = extra.ExtraTask(session, logger)
+    ext.process_extra_tasks(tasks["id"])
+
+
 def main():
     logger.info("Hello from py-music163!")
     # source: https://github.com/ACAne0320/ncmp
 
     music163_login()
     music163_fetch_tasks()
-    music163_complete_tasks()
+    music163_complete_main_tasks()
+    music163_complete_ext_tasks()
 
 
 if __name__ == "__main__":

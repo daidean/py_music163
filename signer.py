@@ -1,20 +1,21 @@
+import re
+import time
+import json
 import base64
 import codecs
-import json
 import random
-import re
 import string
-import time
-from typing import Tuple
 
-import requests
+from typing import Tuple
 from Crypto.Cipher import AES
+
+from requests import Session
 
 from logging import Logger
 
 
 class Signer:
-    def __init__(self, session: requests.Session, task_id: str, logger: Logger):
+    def __init__(self, session: Session, task_id: str, logger: Logger):
         self.session = session
         self.task_id = task_id
         self.logger = logger
@@ -71,7 +72,7 @@ class Signer:
         """为作品评分"""
         try:
             # 使用配置的等待时间
-            delay = random.randint(15 * 1000, 20 * 1000) / 1000
+            delay = random.randint(20 * 1000, 25 * 1000) / 1000
             self.logger.info(f"等待 {delay:.1f} 秒后继续...")
             time.sleep(delay)
 
@@ -113,7 +114,7 @@ class Signer:
             else:
                 error_msg = response.get("message") or response.get("msg", "未知错误")
                 if "频繁" in error_msg:
-                    retry_delay = random.randint(15 * 1000, 20 * 1000) / 1000
+                    retry_delay = random.randint(20 * 1000, 25 * 1000) / 1000
                     self.logger.info(
                         f"遇到频率限制，等待 {retry_delay:.1f} 秒后重试..."
                     )

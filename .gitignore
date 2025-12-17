@@ -11,6 +11,7 @@ wheels/
 
 # Config
 config.py
+config.key
 
 # Log
 *.log

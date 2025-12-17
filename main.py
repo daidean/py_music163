@@ -1,5 +1,10 @@
 import logging
 import requests
+from pyncm.apis.login import (
+    SetSendRegisterVerifcationCodeViaCellphone,
+    LoginViaCellphone,
+    GetCurrentSession,
+)
 
 import config
 import signer
@@ -22,14 +27,38 @@ logger.addHandler(logger_handler_file)
 
 
 def music163_login():
-    session.cookies.set("MUSIC_U", config.Cookie_MUSIC_U)
-    session.cookies.set("__csrf", config.Cookie_CSRF)
+    with open("config.key") as fp:
+        [csrf, mu] = fp.read().split(":")
 
-    resp = session.get(config.url_UserInfo)
-    assert resp.status_code == 200
+    session.cookies.set("__csrf", csrf)
+    session.cookies.set("MUSIC_U", mu)
 
-    resp = resp.json()
+    resp = session.get(config.url_UserInfo).json()
+    if resp["code"] == 200 and resp["account"]:
+        username = resp["profile"]["nickname"]
+        logger.info(f"会话登录成功，用户名：{username}")
+        return
+
+    logger.error("会话已过期，正在重新登录")
+    SetSendRegisterVerifcationCodeViaCellphone(config.login_phone)
+    login_code = input(f"请输入手机验证码（{config.login_phone}）：")
+
+    resp = LoginViaCellphone(config.login_phone, captcha=login_code)
+    cookies = GetCurrentSession().cookies
+
+    csrf = cookies.get("__csrf")
+    mu = cookies.get("MUSIC_U")
+    logger.info(f"会话登录：{csrf}:{mu}")
+
+    session.cookies.set("__csrf", csrf or "")
+    session.cookies.set("MUSIC_U", mu or "")
+
+    resp = session.get(config.url_UserInfo).json()
     assert resp["code"] == 200
+    assert resp["account"]
+
+    with open("config.key", "w") as fp:
+        fp.write(f"{csrf}:{mu}")
 
     username = resp["profile"]["nickname"]
     logger.info(f"登录成功，用户名：{username}")

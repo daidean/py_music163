@@ -10,8 +10,7 @@ from typing import Tuple
 from Crypto.Cipher import AES
 
 from requests import Session
-
-from logging import Logger
+from loguru._logger import Logger
 
 
 class Signer:

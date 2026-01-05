@@ -1,10 +1,10 @@
 import time
 import random
 
-from logging import Logger
 from typing import Dict, List, Tuple
 
 from requests import Session
+from loguru._logger import Logger
 
 from signer import Signer
 

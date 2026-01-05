@@ -1,30 +1,21 @@
-import logging
 import requests
+
 from pyncm.apis.login import (
     SetSendRegisterVerifcationCodeViaCellphone,
     LoginViaCellphone,
     GetCurrentSession,
 )
+from loguru import logger
+
 
 import config
 import signer
 import extra
 
+
+logger.add(f"{__file__}.log", encoding="utf-8", level="DEBUG")
 session = requests.session()
 tasks = {}
-
-
-logger_format = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-logger_formatter = logging.Formatter(logger_format)
-logger_handler_console = logging.StreamHandler()
-logger_handler_console.setFormatter(logger_formatter)
-logger_handler_console.stream.reconfigure(encoding='utf-8')
-logger_handler_file = logging.FileHandler(f"{__file__}.log", encoding="utf-8")
-logger_handler_file.setFormatter(logger_formatter)
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
-logger.addHandler(logger_handler_console)
-logger.addHandler(logger_handler_file)
 
 
 def music163_login():
@@ -81,7 +72,7 @@ def music163_fetch_tasks():
 
 
 def music163_complete_main_tasks():
-    sig = signer.Signer(session, tasks["id"], logger)
+    sig = signer.Signer(session, tasks["id"], logger) # type: ignore
 
     for work in tasks["works"]:
         if work["completed"]:
@@ -90,7 +81,7 @@ def music163_complete_main_tasks():
 
 
 def music163_complete_ext_tasks():
-    ext = extra.ExtraTask(session, logger)
+    ext = extra.ExtraTask(session, logger) # type: ignore
     ext.process_extra_tasks(tasks["id"])
 
 

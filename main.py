@@ -1,12 +1,11 @@
 import requests
 
+from loguru import logger
 from pyncm.apis.login import (
     SetSendRegisterVerifcationCodeViaCellphone,
     LoginViaCellphone,
     GetCurrentSession,
 )
-from loguru import logger
-
 
 import config
 import signer
@@ -25,7 +24,7 @@ def music163_login():
     session.cookies.set("__csrf", csrf)
     session.cookies.set("MUSIC_U", mu)
 
-    resp = session.get(config.url_UserInfo).json()
+    resp = session.get(config.get_user_url).json()
     if resp["code"] == 200 and resp["account"]:
         username = resp["profile"]["nickname"]
         logger.info(f"会话登录成功，用户名：{username}")
@@ -45,7 +44,7 @@ def music163_login():
     session.cookies.set("__csrf", csrf or "")
     session.cookies.set("MUSIC_U", mu or "")
 
-    resp = session.get(config.url_UserInfo).json()
+    resp = session.get(config.get_user_url).json()
     assert resp["code"] == 200
     assert resp["account"]
 
@@ -59,15 +58,12 @@ def music163_login():
 def music163_fetch_tasks():
     global tasks
 
-    resp = session.get(config.url_Tasks)
-    assert resp.status_code == 200
-
-    resp = resp.json()
-    assert resp["code"] == 200
+    resp = session.get(config.get_tasks_url).json()
 
     tasks = resp["data"]
     tasks_total = tasks["count"]
     tasks_done = tasks["completedCount"]
+
     logger.info(f"任务获取成功，总量：{tasks_total}，已完成：{tasks_done}")
 
 

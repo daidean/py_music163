@@ -6,6 +6,7 @@ from typing import Dict, List, Tuple
 from requests import Session
 from loguru._logger import Logger
 
+import config
 from signer import Signer
 
 
@@ -13,13 +14,8 @@ class ExtraTask:
     def __init__(self, session: Session, logger: Logger):
         self.session = session
         self.logger = logger
-        self.api = {
-            "extra_list": "https://interface.music.163.com/api/music/partner/extra/wait/evaluate/work/list",
-            "report_listen": "https://interface.music.163.com/weapi/partner/resource/interact/report",
-        }
-        self.signer = Signer(
-            session, "", logger
-        )  # task_id 为空字符串，因为上报听歌不需要
+        # task_id 为空字符串，因为上报听歌不需要
+        self.signer = Signer(session, "", logger)
 
     def process_extra_tasks(self, task_id: str) -> None:
         """处理额外的评分任务"""
@@ -28,9 +24,7 @@ class ExtraTask:
 
             # 如果已经完成15个任务，直接返回
             if completed_count >= 15:
-                self.logger.info(
-                    f"今日已完成 {completed_count} 个额外评分任务，已达到每日上限"
-                )
+                self.logger.info(f"今日已完成 {completed_count} 个额外评分任务")
                 return
 
             if not extra_tasks:
@@ -41,13 +35,14 @@ class ExtraTask:
 
             # 记录本次成功评分的数量
             success_count = 0
-            # 每天最多完成7个额外任务
+            # 每天最多完成15个额外任务
             remaining_tasks = 15 - completed_count
 
             for task in extra_tasks:
                 if success_count >= remaining_tasks:
                     self.logger.info(
-                        f"已完成 {success_count} 个额外评分任务，总计完成 {completed_count + success_count} 个"
+                        f"已完成 {success_count} 个额外评分任务，"
+                        + f"总计完成 {completed_count + success_count} 个"
                     )
                     break
 
@@ -87,7 +82,7 @@ class ExtraTask:
         """获取额外评分任务列表"""
         try:
             response = self.session.get(
-                url=self.api["extra_list"],
+                url=config.extra_list,
                 headers={"Referer": "https://mp.music.163.com/"},
             ).json()
 
@@ -143,7 +138,7 @@ class ExtraTask:
             }
 
             response = self.session.post(
-                url=f"{self.api['report_listen']}?csrf_token={csrf}",
+                url=f"{config.report_listen}?csrf_token={csrf}",
                 data=params,
                 headers={"Referer": "https://mp.music.163.com/"},
             ).json()

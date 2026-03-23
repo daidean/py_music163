@@ -2,8 +2,16 @@
 ```bash
 cat < EOF > config.py
 login_phone = "手机号码"
-url_UserInfo = "https://music.163.com/api/nuser/account/get"
-url_Tasks = "https://interface.music.163.com/api/music/partner/daily/task/get"
+
+get_user_url = "https://music.163.com/api/nuser/account/get"
+get_tasks_url = "https://interface.music.163.com/api/music/partner/daily/task/get"
+
+extra_list = "https://interface.music.163.com/api/music/partner/extra/wait/evaluate/work/list"
+report_listen = "https://interface.music.163.com/weapi/partner/resource/interact/report"
+sign_url = "https://interface.music.163.com/weapi/music/partner/work/evaluate"
+
+ai_key = "sk-xxxx"
+ai_model = "deepseek-chat"
 EOF
 ```
 

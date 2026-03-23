@@ -67,7 +67,7 @@ class Signer:
 
     def _get_score(self) -> Tuple[str, str]:
         """根据评分权重随机选择评分和对应标签"""
-        scores = [1, 5] * 1 + [2, 4] * 10 + [3] * 50
+        scores = [1, 2, 5] * 1 + [4] * 10 + [3] * 50
         score = str(random.choices(scores)[0])
         tag = f"{score}-A-1"
         return score, tag

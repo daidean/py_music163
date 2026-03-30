@@ -74,8 +74,6 @@ class Signer:
 
     def _get_comment(self, work: dict) -> str:
         """AI生成评价"""
-        if random.random() > 0.8:
-            return "一般般"
         name, author = work["name"], work["authorName"]
         question = f"《{name}》{author}\n你简短评价（20字内）"
         response = self.ai.chat.completions.create(
@@ -99,7 +97,10 @@ class Signer:
 
             csrf = str(self.session.cookies["__csrf"])
             score, tag = self._get_score()
-            comment = self._get_comment(work)
+            if score in ["1", "2"]:
+                comment = "一般般"
+            else:
+                comment = self._get_comment(work)
 
             data = {
                 "taskId": self.task_id,
